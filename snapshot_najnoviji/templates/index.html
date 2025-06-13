@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="hr">
+<head>
+    <meta charset="UTF-8" />
+    <title>Početna stranica | Sigma Tours</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f7fa;
+            color: #333;
+        }
+
+        header {
+            background-color: #003366;
+            color: white;
+            padding: 40px 20px;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        header h1 {
+            font-size: 36px;
+            margin-bottom: 10px;
+        }
+
+        header p {
+            font-size: 18px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        main {
+            padding: 40px 20px;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        section {
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.05);
+        }
+
+        h2 {
+            color: #003366;
+            margin-bottom: 20px;
+        }
+
+        p {
+            line-height: 1.7;
+            font-size: 16px;
+        }
+
+        footer {
+            margin-top: 50px;
+            background-color: #003366;
+            color: white;
+            text-align: center;
+            padding: 20px;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    {% include 'navbar.html' %}
+
+    <header>
+        <h1>Dobrodošli u Sigma Tours</h1>
+        <p>Vaša pouzdana destinacija za udobna, sigurna i povoljna avionska putovanja širom svijeta.</p>
+    </header>
+
+    <main>
+        <section>
+            <h2>O nama</h2>
+            <p>
+                Sigma Tours je moderna avio agencija sa dugogodišnjim iskustvom u organizaciji putovanja.
+                Naš cilj je da vam pružimo nezaboravno iskustvo leta uz vrhunsku uslugu, bez obzira na to da li putujete poslovno,
+                turistički ili avanturistički. Posvećeni smo tome da vam omogućimo najefikasniji način rezervacije letova, uz transparentne cijene
+                i raznovrsne destinacije širom Evrope, Azije, Amerike i ostalih kontinenata.
+            </p>
+            <p>
+                Naš tim stručnjaka svakodnevno radi na unapređenju kvaliteta usluge i korisničkog iskustva. Sa nama putujete sigurno, brzo i bez stresa.
+                Pratimo moderne trendove, sarađujemo sa najpoznatijim svjetskim avio-kompanijama i pružamo podršku 24/7.
+            </p>
+        </section>
+
+        <section style="margin-top: 30px;">
+            <h2>Zašto odabrati Sigma Tours?</h2>
+            <p>
+                ✓ Jednostavan sistem rezervacija i upravljanja letovima.<br/>
+                ✓ Konkurentne cijene i povoljne ponude karata.<br/>
+                ✓ Mogućnost otkazivanja i izmjena rezervacija uz minimalne troškove.<br/>
+                ✓ Podrška na više jezika.<br/>
+                ✓ Sigurni i šifrovani sistemi plaćanja.
+            </p>
+        </section>
+    </main>
+
+    <footer>
+        &copy; 2025 Sigma Tours | Sva prava zadržana
+    </footer>
+</body>
+</html>

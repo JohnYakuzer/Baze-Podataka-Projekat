@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Dostupni Letovi</title>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+    }
+    .let {
+        border: 1px solid #ccc;
+        padding: 15px;
+        margin: 10px 20px;
+        border-radius: 6px;
+        background-color: #f9f9f9;
+    }
+    .let h3 {
+        margin: 0 0 10px;
+    }
+    .let input[type="number"] {
+        width: 60px;
+        margin-right: 10px;
+    }
+    .let button {
+        padding: 6px 12px;
+        background-color: #007BFF;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+    .let button:hover {
+        background-color: #0056b3;
+    }
+
+    /* Modal styling */
+    #payment-modal {
+        display: none;
+        position: fixed;
+        top: 15%;
+        left: 35%;
+        width: 30%;
+        background: white;
+        border-radius: 8px;
+        padding: 20px;
+        box-shadow: 0 0 15px rgba(0,0,0,0.3);
+        z-index: 10000;
+    }
+    #payment-modal .close-btn {
+        float: right;
+        font-size: 20px;
+        border: none;
+        background: none;
+        cursor: pointer;
+        font-weight: bold;
+    }
+    #payment-modal input {
+        display: block;
+        width: 90%;
+        margin: 8px 0 12px 0;
+        padding: 6px;
+        font-size: 16px;
+    }
+    #payment-modal button {
+        background-color: #28a745;
+        color: white;
+        padding: 8px 14px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+    #payment-modal button:hover {
+        background-color: #218838;
+    }
+
+    /* Modal backdrop */
+    #modal-backdrop {
+        display: none;
+        position: fixed;
+        top: 0; left: 0;
+        width: 100%; height: 100%;
+        background-color: rgba(0,0,0,0.4);
+        z-index: 9999;
+    }
+</style>
+</head>
+<body>
+    {% include 'navbar.html' %}
+    <h2 style="margin-left: 20px;">Dostupni Letovi</h2>
+    <div id="letovi-container">Učitavanje...</div>
+
+    <!-- Modal and backdrop -->
+    <div id="modal-backdrop"></div>
+
+    <div id="payment-modal">
+        <button class="close-btn" title="Zatvori" onclick="closePaymentModal()">×</button>
+        <h3>Podaci o plaćanju</h3>
+        <form id="payment-form">
+            <input type="text" id="first_name" name="first_name" placeholder="Ime" required />
+            <input type="text" id="last_name" name="last_name" placeholder="Prezime" required />
+            <input type="text" id="card_number" name="card_number" placeholder="Broj kartice" pattern="\d{16}" maxlength="16" required />
+            <input type="text" id="security_number" name="security_number" placeholder="CVV" pattern="\d{3}" maxlength="3" required />
+            <input type="month" id="date_of_expiration" name="date_of_expiration" placeholder="Datum isteka" required />
+            <input type="text" id="billing_address" name="billing_address" placeholder="Adresa za naplatu" required />
+            <input type="text" id="country" name="country" placeholder="Država" required />
+            <button type="submit">Potvrdi plaćanje i rezerviši</button>
+        </form>
+    </div>
+
+    <script>
+        let currentFlightId = null;
+        let currentSeatsCount = 1;
+        
+        function napraviLetDiv(letData) {
+            const letDiv = document.createElement("div");
+            letDiv.className = "let";
+            letDiv.innerHTML = `
+                <h3>${letData.polazni_aerodrom} → ${letData.odredisni_aerodrom}</h3>
+                <p><strong>Datum:</strong> ${letData.vrijeme_i_datum_polaska} – ${letData.vrijeme_i_datum_dolaska}</p>
+                <p><strong>Cijena:</strong> ${letData.cijena} €</p>
+                <p><strong>Kompanija:</strong> ${letData.avio_kompanija}</p>
+                <p><strong>Klasa:</strong> ${letData.klasa}</p>
+                <p><strong>Sjedišta:</strong> ${letData.dostupna_sjedista}</p>
+                <input type="number" id="seat-count-${letData.let_id}" value="1" min="1" max="${letData.dostupna_sjedista}">
+                <button onclick="openPaymentModal(${letData.let_id})">Rezerviši</button>
+            `;
+            return letDiv;
+        }
+        
+        function openPaymentModal(letId) {
+            currentFlightId = letId;
+            const seatInput = document.getElementById(`seat-count-${letId}`);
+            currentSeatsCount = parseInt(seatInput.value) || 1;
+        
+            // Pokušaj dohvaćanja podataka o plaćanju – ako vrati 401, znamo da korisnik nije logovan
+            fetch("/fetch-payment")
+                .then(res => {
+                    if (res.status === 401) {
+                        window.location.href = "/login";
+                        return Promise.reject("Nije logovan");
+                    }
+                    return res.json();
+                })
+                .then(data => {
+                    document.getElementById("first_name").value = data.first_name || "";
+                    document.getElementById("last_name").value = data.last_name || "";
+                    document.getElementById("card_number").value = "";
+                    document.getElementById("security_number").value = "";
+                    document.getElementById("date_of_expiration").value = data.date_of_expiration || "";
+                    document.getElementById("billing_address").value = data.billing_address || "";
+                    document.getElementById("country").value = data.country || "";
+        
+                    document.getElementById("modal-backdrop").style.display = "block";
+                    document.getElementById("payment-modal").style.display = "block";
+                })
+                .catch(err => {
+                    if (err !== "Nije logovan") {
+                        document.getElementById("payment-form").reset();
+                        document.getElementById("modal-backdrop").style.display = "block";
+                        document.getElementById("payment-modal").style.display = "block";
+                    }
+                });
+        }
+        
+        function closePaymentModal() {
+            document.getElementById("modal-backdrop").style.display = "none";
+            document.getElementById("payment-modal").style.display = "none";
+        }
+        
+        document.getElementById("payment-form").addEventListener("submit", async function(event) {
+            event.preventDefault();
+        
+            const paymentData = {
+                first_name: document.getElementById("first_name").value.trim(),
+                last_name: document.getElementById("last_name").value.trim(),
+                card_number: document.getElementById("card_number").value.trim(),
+                security_number: document.getElementById("security_number").value.trim(),
+                date_of_expiration: document.getElementById("date_of_expiration").value,
+                billing_address: document.getElementById("billing_address").value.trim(),
+                country: document.getElementById("country").value.trim()
+            };
+        
+            try {
+                const paymentResponse = await fetch("/payment", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(paymentData)
+                });
+        
+                if (!paymentResponse.ok) {
+                    const errData = await paymentResponse.json();
+                    alert("Greška pri čuvanju plaćanja: " + (errData.error || "Nepoznata greška"));
+                    return;
+                }
+        
+                const bookingPayload = {
+                    let_id: currentFlightId,
+                    rezervisana_sjedista: currentSeatsCount,
+                    datum_rezervacije: new Date().toISOString().split("T")[0]
+                };
+        
+                const bookingResponse = await fetch("/book", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(bookingPayload)
+                });
+        
+                if (bookingResponse.status === 401) {
+                    alert("Morate se ulogovati kako biste rezervisali let.");
+                    window.location.href = "/login";
+                    return;
+                }
+        
+                if (!bookingResponse.ok) {
+                    const errData = await bookingResponse.json();
+                    alert("Greška prilikom rezervacije: " + (errData.error || "Nepoznata greška."));
+                    return;
+                }
+        
+                alert("Rezervacija i plaćanje uspješni!");
+                closePaymentModal();
+                location.reload();
+        
+            } catch (error) {
+                console.error("Greška:", error);
+                alert("Došlo je do greške pri rezervaciji i plaćanju.");
+            }
+        });
+        
+        document.getElementById("modal-backdrop").addEventListener("click", closePaymentModal);
+        
+        fetch("/api/letovi")
+            .then(res => res.json())
+            .then(letovi => {
+                const container = document.getElementById("letovi-container");
+                container.innerHTML = "";
+                letovi.forEach(letData => {
+                    container.appendChild(napraviLetDiv(letData));
+                });
+            })
+            .catch(() => {
+                document.getElementById("letovi-container").textContent = "Greška prilikom učitavanja letova.";
+            });
+    </script>
+</body>
+</html>

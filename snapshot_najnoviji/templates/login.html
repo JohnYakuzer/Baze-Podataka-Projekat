@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="hr">
+<head>
+    <meta charset="UTF-8" />
+    <title>Prijava</title>
+    <style>
+        body {
+          font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+          background: #f5f8fa;
+          margin: 0;
+          padding: 0;
+        }
+      
+        .container {
+          max-width: 400px;
+          margin: 40px auto 0 auto; /* malo prostora odozgo i centrirano, ali ne striktno centrirano vertikalno */
+          background: white;
+          padding: 30px 40px;
+          border-radius: 8px;
+          box-shadow: 0 6px 18px rgba(0,0,0,0.1);
+        }
+      
+        h1 {
+          margin-bottom: 24px;
+          color: #003366;
+          text-align: left;
+        }
+      
+        form label {
+          display: block;
+          margin-bottom: 12px;
+          font-weight: 600;
+          color: #333;
+        }
+      
+        input[type="email"],
+        input[type="password"] {
+          width: 100%;
+          padding: 10px 12px;
+          font-size: 1rem;
+          border: 1px solid #ccc;
+          border-radius: 4px;
+          box-sizing: border-box;
+          transition: border-color 0.3s ease;
+        }
+      
+        input[type="email"]:focus,
+        input[type="password"]:focus {
+          border-color: #0066cc;
+          outline: none;
+        }
+      
+        button {
+          margin-top: 20px;
+          width: 100%;
+          padding: 12px;
+          background: linear-gradient(90deg, #0066cc, #003366);
+          border: none;
+          border-radius: 25px;
+          color: white;
+          font-weight: 700;
+          font-size: 1rem;
+          cursor: pointer;
+          transition: background 0.3s ease;
+        }
+      
+        button:hover {
+          background: linear-gradient(90deg, #507091, #507091);
+          color: white;
+        }
+      
+        .change-password-btn {
+          margin-top: 15px;
+          display: inline-block;
+          background: transparent;
+          border: none;
+          color: #0066cc;
+          cursor: pointer;
+          font-size: 0.9rem;
+          text-decoration: underline;
+        }
+      
+        .change-password-btn:hover {
+          color: #003366;
+        }
+      
+        @media (max-width: 480px) {
+          .container {
+            margin: 20px;
+            padding: 20px;
+          }
+        }
+      </style>
+</head>
+<body>
+    {% include 'navbar.html' %}
+
+    <div class="container">
+        <h1>Prijava</h1>
+        <form id="loginForm">
+          <label for="email">Email:</label>
+          <input type="email" id="email" name="email" required />
+      
+          <label for="lozinka">Lozinka:</label>
+          <input type="password" id="lozinka" name="lozinka" required />
+      
+          <button type="submit">Prijavi se</button>
+        </form>
+        <button class="change-password-btn" onclick="window.location.href='/change-password'">Promijeni lozinku</button>
+      </div>
+
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const form = e.target;
+            const data = {
+                email: form.email.value,
+                lozinka: form.lozinka.value
+            };
+
+            try {
+                const response = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                const result = await response.json();
+
+                if (response.ok) {
+                    alert(result.msg);
+                    window.location.href = '/letovi'; // redirect nakon uspješne prijave
+                } else {
+                    alert('Greška: ' + (result.error || 'Neuspješna prijava.'));
+                }
+            } catch (err) {
+                alert('Greška: ' + err.message);
+            }
+        });
+
+        document.getElementById('changePasswordBtn').addEventListener('click', () => {
+            window.location.href = '/change-password';
+        });
+    </script>
+</body>
+</html>

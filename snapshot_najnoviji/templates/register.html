@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="hr">
+<head>
+    <meta charset="UTF-8" />
+    <title>Registracija</title>
+    <style>
+        body {
+            background-color: #0b1d4a; /* tamno plava pozadina */
+            color: #ffffff; /* bijeli tekst */
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+        }
+
+        h1 {
+            color: #a1c6ff; /* svijetloplava nijansa naslova */
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        form {
+            background-color: #142e75; /* malo svjetlija tamno plava */
+            max-width: 400px;
+            margin: 0 auto;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 0 15px rgba(10, 25, 70, 0.7);
+        }
+
+        label {
+            display: block;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        input[type="text"],
+        input[type="email"],
+        input[type="password"] {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            border: 1.5px solid #274b9c;
+            border-radius: 4px;
+            background-color: #0f2a6e;
+            color: #e0e9ff;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        input[type="text"]:focus,
+        input[type="email"]:focus,
+        input[type="password"]:focus {
+            outline: none;
+            border-color: #7da8ff;
+            background-color: #142e75;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background-color: #395bbb;
+            border: none;
+            border-radius: 6px;
+            color: white;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #5885ff;
+        }
+
+        button:active {
+            background-color: #2e4a99;
+        }
+
+        br {
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body>
+    {% include 'navbar.html' %}
+
+    <h1>Registracija</h1>
+    <form id="registerForm">
+        <label>Ime: <input type="text" name="ime" required /></label><br />
+        <label>Prezime: <input type="text" name="prezime" required /></label><br />
+        <label>Email: <input type="email" name="email" required /></label><br />
+        <label>Lozinka: <input type="password" name="lozinka" required /></label><br />
+        <label>Broj telefona: <input type="text" name="broj_telefona" /></label><br />
+        <button type="submit">Registruj se</button>
+    </form>
+
+    <script>
+        document.getElementById('registerForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const form = e.target;
+            const data = {
+                ime: form.ime.value,
+                prezime: form.prezime.value,
+                email: form.email.value,
+                lozinka: form.lozinka.value,
+                broj_telefona: form.broj_telefona.value || null
+            };
+
+            try {
+                const response = await fetch('/api/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                const result = await response.json();
+
+                if (response.ok) {
+                    alert(result.msg);
+                    window.location.href = '/login';
+                } else {
+                    alert('Greška: ' + (result.error || 'Neuspješna registracija.'));
+                }
+            } catch (err) {
+                alert('Greška: ' + err.message);
+            }
+        });
+    </script>
+</body>
+</html>

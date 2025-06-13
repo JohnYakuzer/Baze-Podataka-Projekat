@@ -1,0 +1,96 @@
+<nav>
+    <div>
+        <a href="/">Početna</a>
+
+        {% if current_user.is_authenticated %}
+            {% if current_user.has_role('admin') %}
+                <a href="/admin_letovi">Admin letovi</a>
+                <a href="/placanja">Plaćanja</a>
+            {% else %}
+                <a href="/letovi">Letovi</a>
+                <a href="/bookings">Moji letovi</a>
+            {% endif %}
+        {% else %}
+            <a href="/letovi">Letovi</a>
+        {% endif %}
+    </div>
+
+    <div>
+        {% if current_user.is_authenticated %}
+            <button id="logout-btn">Odjava</button>
+        {% else %}
+            <a href="/login">Prijava</a>
+            <a href="/register">Registracija</a>
+        {% endif %}
+    </div>
+</nav>
+
+<style>
+    nav {
+        background: linear-gradient(90deg, #0066cc, #003366);
+        padding: 15px 25px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        border-bottom: 2px solid #002244;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    nav a, nav button {
+        color: #ffffff;
+        text-decoration: none;
+        margin-left: 20px;
+        font-weight: 600;
+        background: transparent;
+        border: none;
+        cursor: pointer;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+    }
+
+    nav a:hover, nav button:hover {
+        color: #ffcc00;
+        transform: scale(1.05);
+        text-shadow: 0 0 5px rgba(255, 204, 0, 0.8);
+    }
+
+    nav button {
+        padding: 6px 12px;
+        border-radius: 20px;
+        border: 1px solid #ffffff88;
+        background-color: rgba(255, 255, 255, 0.1);
+    }
+
+    nav button:hover {
+        background-color: rgba(255, 255, 255, 0.2);
+    }
+</style>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    const logoutBtn = document.getElementById("logout-btn");
+    if (!logoutBtn) return;
+
+    logoutBtn.addEventListener("click", async () => {
+        try {
+            const response = await fetch("/logout", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                credentials: "include"
+            });
+
+            if (response.ok) {
+                const result = await response.json();
+                alert(result.msg || "Uspješno ste se odjavili.");
+                window.location.href = "/";
+            } else {
+                const error = await response.json();
+                alert("Greška pri odjavi: " + (error.error || "Nepoznata greška."));
+            }
+        } catch (err) {
+            alert("Greška: " + err.message);
+        }
+    });
+});
+</script>

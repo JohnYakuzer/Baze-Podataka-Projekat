@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Moje Rezervacije</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        table { border-collapse: collapse; width: 100%; max-width: 800px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: center; }
+        th { background-color: #f2f2f2; }
+        button { padding: 5px 10px; cursor: pointer; }
+        button.cancel { background-color: #e74c3c; color: white; border: none; border-radius: 4px; }
+        button.cancel:hover { background-color: #c0392b; }
+        #message { margin-bottom: 20px; font-weight: bold; }
+        #bookings-table { display: none; } /* Sakrij tabelu dok se ne napune podaci */
+    </style>
+</head>
+<body>
+    {% include 'navbar.html' %}
+
+    <h1>Moje Rezervacije</h1>
+    <div id="message"></div>
+    <table id="bookings-table">
+        <thead id="table-head">
+            <tr>
+                <th>ID Rezervacije</th>
+                <th>ID Leta</th>
+                <th>Datum Rezervacije</th>
+                <th>Status</th>
+                <th>Rezervisana Sjedišta</th>
+                <th>Ukupna Cijena</th>
+                <th>Akcija</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Rezervacije će se ubaciti ovde -->
+        </tbody>
+    </table>
+
+    <script>
+        async function fetchBookings() {
+            const messageDiv = document.getElementById("message");
+            const table = document.getElementById("bookings-table");
+            const thead = document.getElementById("table-head");
+            const tbody = document.querySelector("#bookings-table tbody");
+
+            tbody.innerHTML = "";
+            messageDiv.textContent = "";
+            thead.style.display = "none"; // Sakrij head dok ne znamo da ima podataka
+            table.style.display = "none"; // Sakrij tabelu dok se ne napuni
+
+            try {
+                const res = await fetch("/api/bookings");
+                
+                // Provjera da li je odgovor validan JSON
+                const data = await res.json();
+
+                if (res.ok) {
+                    if (!Array.isArray(data) || data.length === 0) {
+                        messageDiv.textContent = "Nemate rezervacija.";
+                        return;
+                    }
+
+                    thead.style.display = "table-header-group";
+                    table.style.display = "table"; // Prikaži tabelu
+
+                    data.forEach(b => {
+                        const tr = document.createElement("tr");
+
+                        tr.innerHTML = `
+                            <td>${b.rezervacija_id}</td>
+                            <td>${b.let_id}</td>
+                            <td>${b.datum_rezervacije || "-"}</td>
+                            <td>${b.status || "-"}</td>
+                            <td>${b.rezervisana_sjedista}</td>
+                            <td>${b.ukupna_cijena.toFixed(2)} €</td>
+                            <td><button class="cancel" onclick="cancelBooking(${b.rezervacija_id})">Cancel</button></td>
+                        `;
+
+                        tbody.appendChild(tr);
+                    });
+                } else {
+                    // Ako API javi grešku (npr. status 500)
+                    messageDiv.textContent = data.error || data.message || "Greška pri učitavanju rezervacija.";
+                }
+            } catch (error) {
+                // Ovo se desi samo ako je fetch potpuno propao (nema konekcije, loš server response itd.)
+                messageDiv.textContent = "Greška pri povezivanju sa serverom.";
+            }
+        }
+
+        async function cancelBooking(rezervacijaId) {
+            if (!confirm("Da li ste sigurni da želite otkazati ovu rezervaciju?")) return;
+
+            try {
+                const res = await fetch(`/cancel/${rezervacijaId}`, { method: "DELETE" });
+                const data = await res.json();
+
+                if (res.ok) {
+                    alert(data.msg || "Rezervacija je otkazana.");
+                    fetchBookings();
+                } else {
+                    alert(data.error || "Greška pri otkazivanju rezervacije.");
+                }
+            } catch (error) {
+                alert("Greška pri povezivanju sa serverom.");
+            }
+        }
+
+        fetchBookings();
+    </script>
+</body>
+</html>
