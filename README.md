@@ -49,12 +49,23 @@ Ova aplikacija predstavlja simulaciju funkcionalnog sistema za upravljanje rezer
    pip install -r requirements.txt
    ```
 
-4. Pokrenite Flask aplikaciju:
+4. Importujte bazu podataka:
+
+   Pokrenite MySQL i importujte fajl `air_agency_new.sql` u vašu instancu baze:
    ```bash
-   python app.py
+   mysql -u root -p < air_agency_new.sql
    ```
 
-5. Otvorite aplikaciju u pretraživaču:
+5. Pokrenite Flask aplikaciju:
+   ```bash
+   python run.py
+   ```
+
+6. Otvorite aplikaciju u pretraživaču:
    ```
    http://localhost:5000
    ```
+
+## Korisnički nalozi
+
+U fajlu `credentials.txt` već se nalaze testni korisnički i administratorski nalozi koje možete koristiti za prijavu i testiranje sistema.
