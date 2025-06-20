@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Placanja - Admin Panel</title>
+    <link rel="stylesheet" href="{{url_for('static', filename='css/placanja.css')}}">
+    <link rel="icon" href="{{ url_for('static', filename='images/favicon.png') }}" type="image/png" />
+</head>
+<body>
+    {% include 'navbar.html' %}
+    <h1>Lista plaćanja</h1>
+    <div id="message"></div>
+    <table>
+        <thead>
+            <tr>
+                <th>ID plaćanja</th>
+                <th>ID korisnika</th>
+                <th>Ime</th>
+                <th>Prezime</th>
+                <th>Adresa</th>
+                <th>Država</th>
+                <th>Akcija</th>
+            </tr>
+        </thead>
+        <tbody id="placanja-tbody">
+           
+        </tbody>
+    </table>
+
+<script>
+async function fetchPlacanja() {
+    const tbody = document.getElementById('placanja-tbody');
+    tbody.innerHTML = '';
+    document.getElementById('message').textContent = '';
+
+    try {
+        const response = await fetch('/api/placanja');
+        if (!response.ok) {
+            throw new Error('Nije moguće učitati plaćanja.');
+        }
+        const data = await response.json();
+
+        if (data.length === 0) {
+            document.getElementById('message').textContent = 'Nema podataka o plaćanju.';
+            return;
+        }
+
+        data.forEach(p => {
+            const tr = document.createElement('tr');
+
+            tr.innerHTML = `
+                <td>${p.payment_id}</td>
+                <td>${p.korisnik_id}</td>
+                <td>${p.first_name}</td>
+                <td>${p.last_name}</td>
+                <td>${p.billing_address || ''}</td>
+                <td>${p.country || ''}</td>
+                <td><button class="delete-btn" data-id="${p.payment_id}">Obriši</button></td>
+            `;
+
+            tbody.appendChild(tr);
+        });
+
+        
+        document.querySelectorAll('.delete-btn').forEach(btn => {
+            btn.addEventListener('click', async (e) => {
+                const paymentId = e.target.getAttribute('data-id');
+                if (!confirm('Da li ste sigurni da želite obrisati ovo plaćanje?')) return;
+
+                try {
+                    const delResponse = await fetch('/delete-payment', {
+                        method: 'DELETE',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({payment_id: parseInt(paymentId)})
+                    });
+
+                    const delResult = await delResponse.json();
+                    alert(delResult.msg || delResult.error || 'Operacija završena.');
+
+                    if (delResponse.ok) {
+                        fetchPlacanja(); 
+                    }
+                } catch (error) {
+                    alert('Greška prilikom brisanja plaćanja.');
+                }
+            });
+        });
+
+    } catch (error) {
+        document.getElementById('message').textContent = error.message;
+    }
+}
+
+window.onload = fetchPlacanja;
+</script>
+    {% include 'footer.html' %}
+
+</body>
+</html>

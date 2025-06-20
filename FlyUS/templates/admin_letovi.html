@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="hr">
+<head>
+    <meta charset="UTF-8">
+    <title>Administracija letova</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin_letovi.css') }}">
+</head>
+<body>
+    {% include 'navbar.html' %}
+    <h1>Administracija letova</h1>
+
+    <button onclick="prikaziFormu()">Dodaj novi let</button>
+
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Polazni aerodrom</th>
+                <th>Odredišni aerodrom</th>
+                <th>Država polaska</th>
+                <th>Država dolaska</th>
+                <th>Vrijeme polaska</th>
+                <th>Vrijeme dolaska</th>
+                <th>Avio kompanija</th>
+                <th>Klasa</th>
+                <th>Cijena (€)</th>
+                <th>Dostupna sjedišta</th>
+                <th>Terminal</th>
+                <th>Izlaz</th>
+                <th>Trajanje</th>
+                <th>Dodatne informacije</th>
+                <th>Akcija</th>
+            </tr>
+        </thead>
+        <tbody id="tabela-letova">
+            
+        </tbody>
+    </table>
+
+    <form id="form-let" style="display: none;">
+        <h3>Dodaj novi let</h3>
+        <label>Polazni aerodrom: <input type="text" id="polazni_aerodrom" required></label>
+        <label>Odredišni aerodrom: <input type="text" id="odredisni_aerodrom" required></label>
+        <label>Država polaska: <input type="text" id="drzava_input" required></label>
+        <label>Država dolaska: <input type="text" id="drzava_output" required></label>
+        <label>Vrijeme polaska: <input type="datetime-local" id="vrijeme_i_datum_polaska" required></label>
+        <label>Vrijeme dolaska: <input type="datetime-local" id="vrijeme_i_datum_dolaska" required></label>
+        <label>Avio kompanija: <input type="text" id="avio_kompanija" required></label>
+        <label>Klasa: <input type="text" id="klasa" required></label>
+        <label>Cijena (€): <input type="number" id="cijena" step="0.01" required></label>
+        <label>Dostupna sjedišta: <input type="number" id="dostupna_sjedista" required></label>
+        <label>Terminal: <input type="text" id="broj_terminala" required></label>
+        <label>Izlaz: <input type="text" id="broj_izlaza" required></label>
+        <label>Trajanje: <input type="text" id="trajanje_leta" required></label>
+        <label>Dodatne informacije: <textarea id="dodatne_informacije"></textarea></label>
+        <button type="submit">Dodaj let</button>
+        <button type="button" id="cancel-btn" onclick="sakrijFormu()">Cancel</button>
+    </form>
+    <div id="modal-backdrop-edit" style="display:none;"></div>
+
+    <div id="edit-modal" style="display:none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+        background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.3); z-index: 1001; width: 400px; max-height: 80vh; overflow-y: auto;">
+        <button class="close-btn" title="Zatvori" onclick="zatvoriEditModal()" style="position: absolute; top: 8px; right: 8px; font-size: 20px; background: none; border: none; cursor: pointer;">×</button>
+        <h3>Izmeni let</h3>
+        <form id="edit-form">
+            <input type="hidden" id="edit_let_id" />
+            <label>Polazni aerodrom: <input type="text" id="edit_polazni_aerodrom" required></label><br>
+            <label>Odredišni aerodrom: <input type="text" id="edit_odredisni_aerodrom" required></label><br>
+            <label>Država polaska: <input type="text" id="edit_drzava_input" required></label><br>
+            <label>Država dolaska: <input type="text" id="edit_drzava_output" required></label><br>
+            <label>Vrijeme polaska: <input type="datetime-local" id="edit_vrijeme_i_datum_polaska" required></label><br>
+            <label>Vrijeme dolaska: <input type="datetime-local" id="edit_vrijeme_i_datum_dolaska" required></label><br>
+            <label>Avio kompanija: <input type="text" id="edit_avio_kompanija" required></label><br>
+            <label>Klasa: <input type="text" id="edit_klasa" required></label><br>
+            <label>Cijena (€): <input type="number" id="edit_cijena" step="0.01" required></label><br>
+            <label>Dostupna sjedišta: <input type="number" id="edit_dostupna_sjedista" required></label><br>
+            <label>Terminal: <input type="text" id="edit_broj_terminala" required></label><br>
+            <label>Izlaz: <input type="text" id="edit_broj_izlaza" required></label><br>
+            <label>Trajanje: <input type="text" id="edit_trajanje_leta" required></label><br>
+            <label>Dodatne informacije: <textarea id="edit_dodatne_informacije"></textarea></label><br>
+            <button type="submit">Sačuvaj izmene</button>
+            <button type="button" onclick="zatvoriEditModal()">Cancel</button>
+        </form>
+    </div>
+
+
+    <script>
+        function prikaziFormu() {
+            const form = document.getElementById('form-let');
+            form.style.display = 'block';
+            form.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function sakrijFormu() {
+            const form = document.getElementById('form-let');
+            form.style.display = 'none';
+            form.reset();
+        }
+
+        function formatirajDatum(datumStr) {
+            if (!datumStr) return 'N/A';
+            const datum = new Date(datumStr);
+            if (isNaN(datum)) return datumStr;
+            return datum.toLocaleString('hr-HR');
+        }
+
+        function ucitajLetove() {
+            const tabelaLetova = document.getElementById('tabela-letova');
+
+            fetch('/api/letovi')
+                .then(response => {
+                    if (!response.ok) throw new Error('Greška prilikom učitavanja letova.');
+                    return response.json();
+                })
+                .then(letovi => {
+                    tabelaLetova.innerHTML = '';
+
+                    letovi.forEach(let => {
+                        const red = document.createElement('tr');
+                        red.innerHTML = `
+                            <td>${let.let_id}</td>
+                            <td>${let.polazni_aerodrom}</td>
+                            <td>${let.odredisni_aerodrom}</td>
+                            <td>${let.drzava_input}</td>
+                            <td>${let.drzava_output}</td>
+                            <td>${formatirajDatum(let.vrijeme_i_datum_polaska)}</td>
+                            <td>${formatirajDatum(let.vrijeme_i_datum_dolaska)}</td>
+                            <td>${let.avio_kompanija}</td>
+                            <td>${let.klasa}</td>
+                            <td>${let.cijena.toFixed(2)}</td>
+                            <td>${let.dostupna_sjedista}</td>
+                            <td>${let.broj_terminala}</td>
+                            <td>${let.broj_izlaza}</td>
+                            <td>${let.trajanje_leta}</td>
+                            <td>${let.dodatne_informacije || ''}</td>
+                            <td><button class="delete-btn" onclick="obrisiLet(${let.let_id})">Obriši</button></td>
+                        `;
+                        tabelaLetova.appendChild(red);
+                    });
+                })
+                .catch(err => {
+                    tabelaLetova.innerHTML = `<tr><td colspan="16">Greška: ${err.message}</td></tr>`;
+                });
+        }
+
+        function obrisiLet(id) {
+            if (!confirm(`Da li ste sigurni da želite obrisati let ID ${id}?`)) return;
+
+            fetch(`/admin/let/${id}`, {
+                method: 'DELETE'
+            })
+            .then(res => {
+                if (!res.ok) throw new Error('Greška prilikom brisanja leta.');
+                ucitajLetove();
+            })
+            .catch(err => alert(err.message));
+        }
+
+        document.getElementById('form-let').addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            const noviLet = {
+                polazni_aerodrom: document.getElementById('polazni_aerodrom').value,
+                odredisni_aerodrom: document.getElementById('odredisni_aerodrom').value,
+                drzava_input: document.getElementById('drzava_input').value,
+                drzava_output: document.getElementById('drzava_output').value,
+                vrijeme_i_datum_polaska: document.getElementById('vrijeme_i_datum_polaska').value,
+                vrijeme_i_datum_dolaska: document.getElementById('vrijeme_i_datum_dolaska').value,
+                avio_kompanija: document.getElementById('avio_kompanija').value,
+                klasa: document.getElementById('klasa').value,
+                cijena: parseFloat(document.getElementById('cijena').value),
+                dostupna_sjedista: parseInt(document.getElementById('dostupna_sjedista').value),
+                broj_terminala: document.getElementById('broj_terminala').value,
+                broj_izlaza: document.getElementById('broj_izlaza').value,
+                trajanje_leta: document.getElementById('trajanje_leta').value,
+                dodatne_informacije: document.getElementById('dodatne_informacije').value
+            };
+
+            fetch('/admin/let', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(noviLet)
+            })
+            .then(res => {
+                if (!res.ok) throw new Error('Greška prilikom dodavanja leta.');
+                sakrijFormu();
+                ucitajLetove();
+            })
+            .catch(err => alert(err.message));
+        });
+
+        
+        ucitajLetove();
+    </script>
+    <script>
+        function otvoriEditModal(letId) {
+    
+    fetch(`/api/letovi/${letId}`)
+        .then(res => {
+            if (!res.ok) throw new Error('Ne mogu učitati let.');
+            return res.json();
+        })
+        .then(letData => {
+           
+            document.getElementById('edit_let_id').value = letData.let_id;
+            document.getElementById('edit_polazni_aerodrom').value = letData.polazni_aerodrom;
+            document.getElementById('edit_odredisni_aerodrom').value = letData.odredisni_aerodrom;
+            document.getElementById('edit_drzava_input').value = letData.drzava_input;
+            document.getElementById('edit_drzava_output').value = letData.drzava_output;
+
+            
+            function toLocalDateTimeString(dateStr) {
+                if (!dateStr) return '';
+                const d = new Date(dateStr);
+                if (isNaN(d)) return '';
+                const pad = n => n.toString().padStart(2, '0');
+                return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+            }
+
+            document.getElementById('edit_vrijeme_i_datum_polaska').value = toLocalDateTimeString(letData.vrijeme_i_datum_polaska);
+            document.getElementById('edit_vrijeme_i_datum_dolaska').value = toLocalDateTimeString(letData.vrijeme_i_datum_dolaska);
+
+            document.getElementById('edit_avio_kompanija').value = letData.avio_kompanija;
+            document.getElementById('edit_klasa').value = letData.klasa;
+            document.getElementById('edit_cijena').value = letData.cijena;
+            document.getElementById('edit_dostupna_sjedista').value = letData.dostupna_sjedista;
+            document.getElementById('edit_broj_terminala').value = letData.broj_terminala;
+            document.getElementById('edit_broj_izlaza').value = letData.broj_izlaza;
+            document.getElementById('edit_trajanje_leta').value = letData.trajanje_leta;
+            document.getElementById('edit_dodatne_informacije').value = letData.dodatne_informacije || '';
+
+            
+            document.getElementById('modal-backdrop-edit').style.display = 'block';
+            document.getElementById('edit-modal').style.display = 'block';
+        })
+        .catch(err => alert(err.message));
+}
+
+function zatvoriEditModal() {
+    document.getElementById('modal-backdrop-edit').style.display = 'none';
+    document.getElementById('edit-modal').style.display = 'none';
+}
+
+
+document.getElementById('edit-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    const letId = document.getElementById('edit_let_id').value;
+
+    const izmenjeniLet = {
+        polazni_aerodrom: document.getElementById('edit_polazni_aerodrom').value,
+        odredisni_aerodrom: document.getElementById('edit_odredisni_aerodrom').value,
+        drzava_input: document.getElementById('edit_drzava_input').value,
+        drzava_output: document.getElementById('edit_drzava_output').value,
+        vrijeme_i_datum_polaska: document.getElementById('edit_vrijeme_i_datum_polaska').value,
+        vrijeme_i_datum_dolaska: document.getElementById('edit_vrijeme_i_datum_dolaska').value,
+        avio_kompanija: document.getElementById('edit_avio_kompanija').value,
+        klasa: document.getElementById('edit_klasa').value,
+        cijena: parseFloat(document.getElementById('edit_cijena').value),
+        dostupna_sjedista: parseInt(document.getElementById('edit_dostupna_sjedista').value),
+        broj_terminala: document.getElementById('edit_broj_terminala').value,
+        broj_izlaza: document.getElementById('edit_broj_izlaza').value,
+        trajanje_leta: document.getElementById('edit_trajanje_leta').value,
+        dodatne_informacije: document.getElementById('edit_dodatne_informacije').value
+    };
+
+    fetch(`/admin/let/${letId}`, {
+        method: 'PUT',  
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(izmenjeniLet)
+    })
+    .then(res => {
+        if (!res.ok) throw new Error('Greška prilikom ažuriranja leta.');
+        return res.json();
+    })
+    .then(data => {
+        alert('Let je uspešno ažuriran.');
+        zatvoriEditModal();
+        ucitajLetove();  
+    })
+    .catch(err => alert(err.message));
+});
+
+    </script>
+    {% include 'footer.html' %}
+</body>
+</html>

@@ -1,0 +1,70 @@
+<head>
+    <link rel="stylesheet" href="{{url_for('static', filename='css/navbar.css')}}">
+</head>
+<body>
+    <nav>
+        <div>
+            <img src="{{ url_for('static', filename='images/logo_backup.png') }}" alt="Logo" class="navbar-logo">
+
+            <a href="/">Početna</a>
+    
+            {% if current_user.is_authenticated %}
+                {% if current_user.has_role('admin') %}
+                    <a href="/admin_letovi">Admin letovi</a>
+                    <a href="/placanja">Plaćanja</a>
+                    <a href="/admin/users/view">Pregled korisnika</a>
+                {% else %}
+                    <a href="/letovi">Letovi</a>
+                    <a href="/bookings">Moji letovi</a>
+                    <a href="/info">O nama</a>
+                    <a href="privacy_policy">Politika privatnosti</a>
+                {% endif %}
+            {% else %}
+                <a href="/letovi">Letovi</a>
+                <a href="/info">O nama</a>
+                <a href="privacy_policy">Politika privatnosti</a>
+            {% endif %}
+        </div>
+    
+        <div>
+            {% if current_user.is_authenticated %}
+                <button id="logout-btn">Odjava</button>
+            {% else %}
+                <a href="/login">Prijava</a>
+                <a href="/register">Registracija</a>
+            {% endif %}
+        </div>
+    </nav>
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const logoutBtn = document.getElementById("logout-btn");
+            if (!logoutBtn) return;
+        
+            logoutBtn.addEventListener("click", async () => {
+                try {
+                    const response = await fetch("/logout", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        credentials: "include"
+                    });
+        
+                    if (response.ok) {
+                        const result = await response.json();
+                        alert(result.msg || "Uspješno ste se odjavili.");
+                        window.location.href = "/";
+                    } else {
+                        const error = await response.json();
+                        alert("Greška pri odjavi: " + (error.error || "Nepoznata greška."));
+                    }
+                } catch (err) {
+                    alert("Greška: " + err.message);
+                }
+            });
+        });
+        </script>
+</body>
+
+
+
+
+

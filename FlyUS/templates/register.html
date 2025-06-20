@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="hr">
+<head>
+    <meta charset="UTF-8" />
+    <title>Registracija</title>
+    <link rel="stylesheet" href="{{url_for('static', filename='css/register.css')}}">
+    <link rel="icon" href="{{ url_for('static', filename='images/favicon.png') }}" type="image/png" />
+</head>
+<body>
+    {% include 'navbar.html' %}
+
+    <div class="wrapper">
+        <div class="register_container">
+            <h1>Registracija</h1>
+            <form id="registerForm">
+                <label>Ime:
+                    <input type="text" name="ime" required />
+                </label>
+
+                <label>Prezime:
+                    <input type="text" name="prezime" required />
+                </label>
+
+                <label>Email:
+                    <input type="email" name="email" required />
+                </label>
+
+                <label>Lozinka:
+                    <input type="password" name="lozinka" required />
+                </label>
+
+                <label>Broj telefona:
+                    <input type="text" name="broj_telefona" />
+                </label>
+
+                <button type="submit">Registruj se</button>
+            </form>
+        </div>
+    </div>
+
+    
+
+    <script>
+        document.getElementById('registerForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const form = e.target;
+            const data = {
+                ime: form.ime.value,
+                prezime: form.prezime.value,
+                email: form.email.value,
+                lozinka: form.lozinka.value,
+                broj_telefona: form.broj_telefona.value || null
+            };
+
+            try {
+                const response = await fetch('/api/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                const result = await response.json();
+
+                if (response.ok) {
+                    alert(result.msg);
+                    window.location.href = '/login';
+                } else {
+                    alert('Greška: ' + (result.error || 'Neuspješna registracija.'));
+                }
+            } catch (err) {
+                alert('Greška: ' + err.message);
+            }
+        });
+    </script>
+    {% include 'footer.html' %}
+</body>
+</html>

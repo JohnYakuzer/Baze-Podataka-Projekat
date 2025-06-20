@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>Početna stranica | Sigma Tours</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}">
+    <link rel="icon" href="{{ url_for('static', filename='images/favicon.png') }}" type="image/png" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/slideshow.css') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Oswald:wght@200..700&display=swap" rel="stylesheet">
+
+</head>
+<body>
+    {% include 'navbar.html' %}
+
+    <header>
+        <div id="slideshow-container">
+            <img id="slideshow-image">
+            <div id="slideshow-text">
+                <img src="../static/images/logo_backup.png">
+                
+            </div>
+            
+        </div>
+        
+    </header>
+
+    <main>
+        <section>
+            <div class="paragaf-1">
+                <h2>Sigurnost, pouzdanost, fleksibilnost</h2>
+                <p>
+                    FlyUS je jedinstveno mjesto gdje možete brzo, sigurno i povoljno rezervisati i pregledati letove. Otkrijte najbolje ponude, uporedite cijene i uvjerite se zašto smo lideri u pružanju vrhunskih putničkih iskustava!
+                </p>
+                <p>
+                    Naš tim stručnjaka svakodnevno radi na unapređenju kvaliteta usluge i korisničkog iskustva. Sa nama rezervišite, putujete sigurno, brzo i bez stresa.
+                    Pratimo moderne trendove, sarađujemo sa najpoznatijim svjetskim avio-kompanijama i pružamo podršku 24/7.
+                </p>
+                <div class="front_1">
+                    <img src="../static/images/crew.jpg">
+                </div>
+            </div>
+            
+        </section>
+
+        <div class="why_we">
+            <section style="margin-top: 30px;">
+                <h2>Izbjegnite cekanja, zurbi i odaberite najbolji nacin za rezervacije!</h2>
+                <p>
+                    Kod nas se mozete osjecati bezbjedno da cete dobiti sledece usluge:</p>
+
+                    ✓ Brzo zakazivanje, i bookvanje letova<br/>
+                    ✓ Sigurnost i bezbjednost rezervacija<br/>
+                    ✓ Povoljne cijene.<br/>
+                    ✓ 24/7 tehnicka podrska<br/>
+                    ✓ Odgovornost i pomoc <br>
+
+                   
+                    <div class="ljudi_cekaju">
+                        <br>
+                        <img src="../static/images/stop_wait.jpg" >
+                    </div>
+                </p>
+            </section>
+        </div>
+        <br>
+        <br>
+        <section>
+            <div class="iskustvo">
+                <h2>Godine iskustva</h2>
+                <br>
+                <p>
+                    Naš tim čine iskusni profesionalci sa višegodišnjim znanjem u avio industriji i korisničkoj podršci. Posvećeni smo stalnom usavršavanju i prilagođavanju vašim potrebama kako bismo obezbijedili vrhunsku uslugu na svakom koraku. Vjerujemo da je ključ uspjeha u razumijevanju i pružanju potpune pažnje svakom korisniku. Zato se trudimo da svaki vaš zahtjev bude ispunjen brzo, efikasno i sa maksimalnim poštovanjem. Vaše zadovoljstvo i sigurnost su nam na prvom mjestu, jer želimo da vaše putovanje sa FlyUS bude bezbrižno i prijatno iskustvo.
+                </p>
+                <br>
+                <img src="../static/images/crew_2.jpg">
+            </div>
+        </section>
+    </main>
+
+    <script>
+        const images = [
+            '/static/images/slideshow/background_1.png',
+            '/static/images/slideshow/x.jpg',
+            '/static/images/slideshow/3.jpg',
+            '/static/images/slideshow/flyus.png',
+            '/static/images/slideshow/airport.jpg'
+            
+        ];
+
+        let currentIndex = 0;
+        const slideshowImage = document.getElementById('slideshow-image');
+
+        function changeImage() {
+            slideshowImage.style.opacity = 0;
+
+            setTimeout(() => {
+                currentIndex = (currentIndex + 1) % images.length;
+                slideshowImage.src = images[currentIndex];
+                slideshowImage.style.opacity = 1;
+            }, 1000);
+        }
+
+        setInterval(changeImage, 4000);
+    </script>
+    {% include 'footer.html' %}
+</body>
+</html>

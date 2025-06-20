@@ -1,0 +1,326 @@
+<style>
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+    body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background-color: #ffffff;
+        color: #000000;
+        margin: 0;
+        padding-top: 80px; 
+        padding-bottom: 80px; 
+        
+        box-sizing: border-box;
+    }
+
+    nav {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        background-color: #003366;
+        color: white;
+        z-index: 1000;        
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 15px 20px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    nav h1 {
+        font-size: 20px;
+        margin: 0;
+    }
+
+    .nav-buttons {
+        display: flex;
+        align-items: center;
+    }
+
+    .nav-buttons button {
+        padding: 8px 12px;
+        background-color: #e53935;
+        color: white;
+        border: none;
+        cursor: pointer;
+        font-size: 14px;
+        border-radius: 20px;
+        transition: background-color 0.3s ease;
+        height: auto;
+    }
+
+    .nav-buttons button:hover {
+        background-color: #c62828;
+    }
+
+    h1 {
+        text-align: center;
+        color: #003366;
+        margin-top: 20px;
+    }
+
+    button {
+        padding: 10px 15px;
+        background-color: #4CAF50;
+        color: white;
+        border: none;
+        cursor: pointer;
+        font-size: 14px;
+        border-radius: 5px;
+    }
+
+    button:hover {
+        background-color: #45a049;
+    }
+
+    
+    #cancel-btn {
+        background-color: #e53935;
+        margin-left: 10px;
+    }
+
+    #cancel-btn:hover {
+        background-color: #c62828;
+    }
+
+    form {
+        margin-top: 20px;
+        padding: 20px;
+        background-color: #f2f2f2;
+        border-radius: 8px;
+        box-shadow: 0 0 5px rgba(0,0,0,0.1);
+    }
+
+    form input, form textarea {
+        margin-bottom: 10px;
+        width: calc(100% - 20px);
+        padding: 8px;
+        font-size: 14px;
+        background-color: #ffffff;
+        color: #000000;
+        border: 1px solid #ccc;
+    }
+
+    form label {
+        display: block;
+        margin-top: 10px;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 30px;
+        background-color: #f9f9f9;
+        color: #000000;
+    }
+
+    th, td {
+        border: 1px solid #ddd;
+        padding: 10px;
+        text-align: center;
+        font-size: 14px;
+    }
+
+    th {
+        background-color: #4CAF50;
+        color: white;
+    }
+
+    tr:nth-child(even) {
+        background-color: #f2f2f2;
+    }
+
+    tr:hover {
+        background-color: #e6e6e6;
+    }
+
+    .delete-btn {
+        background-color: #e53935;
+        color: white;
+        border: none;
+        padding: 6px 10px;
+        cursor: pointer;
+        border-radius: 4px;
+    }
+
+    .delete-btn:hover {
+        background-color: #c62828;
+    }
+
+    
+</style>
+
+
+
+<!DOCTYPE html>
+<html lang="hr">
+<head>
+    <meta charset="UTF-8">
+    <title>Administracija letova</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin_letovi.css') }}">
+</head>
+<body>
+    {% include 'navbar.html' %}
+    <h1>Administracija letova</h1>
+
+    <button onclick="prikaziFormu()">Dodaj novi let</button>
+
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Polazni aerodrom</th>
+                <th>Odredišni aerodrom</th>
+                <th>Država polaska</th>
+                <th>Država dolaska</th>
+                <th>Vrijeme polaska</th>
+                <th>Vrijeme dolaska</th>
+                <th>Avio kompanija</th>
+                <th>Klasa</th>
+                <th>Cijena (€)</th>
+                <th>Dostupna sjedišta</th>
+                <th>Terminal</th>
+                <th>Izlaz</th>
+                <th>Trajanje</th>
+                <th>Dodatne informacije</th>
+                <th>Akcija</th>
+            </tr>
+        </thead>
+        <tbody id="tabela-letova">
+            
+        </tbody>
+    </table>
+
+    <form id="form-let" style="display: none;">
+        <h3>Dodaj novi let</h3>
+        <label>Polazni aerodrom: <input type="text" id="polazni_aerodrom" required></label>
+        <label>Odredišni aerodrom: <input type="text" id="odredisni_aerodrom" required></label>
+        <label>Država polaska: <input type="text" id="drzava_input" required></label>
+        <label>Država dolaska: <input type="text" id="drzava_output" required></label>
+        <label>Vrijeme polaska: <input type="datetime-local" id="vrijeme_i_datum_polaska" required></label>
+        <label>Vrijeme dolaska: <input type="datetime-local" id="vrijeme_i_datum_dolaska" required></label>
+        <label>Avio kompanija: <input type="text" id="avio_kompanija" required></label>
+        <label>Klasa: <input type="text" id="klasa" required></label>
+        <label>Cijena (€): <input type="number" id="cijena" step="0.01" required></label>
+        <label>Dostupna sjedišta: <input type="number" id="dostupna_sjedista" required></label>
+        <label>Terminal: <input type="text" id="broj_terminala" required></label>
+        <label>Izlaz: <input type="text" id="broj_izlaza" required></label>
+        <label>Trajanje: <input type="text" id="trajanje_leta" required></label>
+        <label>Dodatne informacije: <textarea id="dodatne_informacije"></textarea></label>
+        <button type="submit">Dodaj let</button>
+        <button type="button" id="cancel-btn" onclick="sakrijFormu()">Cancel</button>
+    </form>
+
+    <script>
+        function prikaziFormu() {
+            const form = document.getElementById('form-let');
+            form.style.display = 'block';
+            form.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function sakrijFormu() {
+            const form = document.getElementById('form-let');
+            form.style.display = 'none';
+            form.reset();
+        }
+
+        function formatirajDatum(datumStr) {
+            if (!datumStr) return 'N/A';
+            const datum = new Date(datumStr);
+            if (isNaN(datum)) return datumStr;
+            return datum.toLocaleString('hr-HR');
+        }
+
+        function ucitajLetove() {
+            const tabelaLetova = document.getElementById('tabela-letova');
+
+            fetch('/api/letovi')
+                .then(response => {
+                    if (!response.ok) throw new Error('Greška prilikom učitavanja letova.');
+                    return response.json();
+                })
+                .then(letovi => {
+                    tabelaLetova.innerHTML = '';
+
+                    letovi.forEach(let => {
+                        const red = document.createElement('tr');
+                        red.innerHTML = `
+                            <td>${let.let_id}</td>
+                            <td>${let.polazni_aerodrom}</td>
+                            <td>${let.odredisni_aerodrom}</td>
+                            <td>${let.drzava_input}</td>
+                            <td>${let.drzava_output}</td>
+                            <td>${formatirajDatum(let.vrijeme_i_datum_polaska)}</td>
+                            <td>${formatirajDatum(let.vrijeme_i_datum_dolaska)}</td>
+                            <td>${let.avio_kompanija}</td>
+                            <td>${let.klasa}</td>
+                            <td>${let.cijena.toFixed(2)}</td>
+                            <td>${let.dostupna_sjedista}</td>
+                            <td>${let.broj_terminala}</td>
+                            <td>${let.broj_izlaza}</td>
+                            <td>${let.trajanje_leta}</td>
+                            <td>${let.dodatne_informacije || ''}</td>
+                            <td><button class="delete-btn" onclick="obrisiLet(${let.let_id})">Obriši</button></td>
+                        `;
+                        tabelaLetova.appendChild(red);
+                    });
+                })
+                .catch(err => {
+                    tabelaLetova.innerHTML = `<tr><td colspan="16">Greška: ${err.message}</td></tr>`;
+                });
+        }
+
+        function obrisiLet(id) {
+            if (!confirm(`Da li ste sigurni da želite obrisati let ID ${id}?`)) return;
+
+            fetch(`/admin/let/${id}`, {
+                method: 'DELETE'
+            })
+            .then(res => {
+                if (!res.ok) throw new Error('Greška prilikom brisanja leta.');
+                ucitajLetove();
+            })
+            .catch(err => alert(err.message));
+        }
+
+        document.getElementById('form-let').addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            const noviLet = {
+                polazni_aerodrom: document.getElementById('polazni_aerodrom').value,
+                odredisni_aerodrom: document.getElementById('odredisni_aerodrom').value,
+                drzava_input: document.getElementById('drzava_input').value,
+                drzava_output: document.getElementById('drzava_output').value,
+                vrijeme_i_datum_polaska: document.getElementById('vrijeme_i_datum_polaska').value,
+                vrijeme_i_datum_dolaska: document.getElementById('vrijeme_i_datum_dolaska').value,
+                avio_kompanija: document.getElementById('avio_kompanija').value,
+                klasa: document.getElementById('klasa').value,
+                cijena: parseFloat(document.getElementById('cijena').value),
+                dostupna_sjedista: parseInt(document.getElementById('dostupna_sjedista').value),
+                broj_terminala: document.getElementById('broj_terminala').value,
+                broj_izlaza: document.getElementById('broj_izlaza').value,
+                trajanje_leta: document.getElementById('trajanje_leta').value,
+                dodatne_informacije: document.getElementById('dodatne_informacije').value
+            };
+
+            fetch('/admin/let', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(noviLet)
+            })
+            .then(res => {
+                if (!res.ok) throw new Error('Greška prilikom dodavanja leta.');
+                sakrijFormu();
+                ucitajLetove();
+            })
+            .catch(err => alert(err.message));
+        });
+
+        
+        ucitajLetove();
+    </script>
+</body>
+</html>

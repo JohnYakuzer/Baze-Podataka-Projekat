@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Admin - Pregled korisnika</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/admin_users.css') }}">
+  <link rel="icon" href="{{ url_for('static', filename='images/favicon.png') }}" type="image/png" />
+</head>
+<body>
+    {% include 'navbar.html' %}
+    
+
+  <h1>Pregled korisnika</h1>
+
+  <table id="users-table">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Ime</th>
+        <th>Broj telefona</th>
+        <th>Email</th>
+        <th>Akcije</th>
+      </tr>
+    </thead>
+    <tbody>
+      
+    </tbody>
+  </table>
+
+  <div id="message"></div>
+
+  <script>
+    async function fetchUsers() {
+      try {
+        const res = await fetch('/admin/users', { credentials: 'include' });
+        if (!res.ok) throw new Error('Greška pri učitavanju korisnika');
+        const users = await res.json();
+        renderUsers(users);
+      } catch (err) {
+        showMessage(err.message, true);
+      }
+    }
+
+    function renderUsers(users) {
+      const tbody = document.querySelector('#users-table tbody');
+      tbody.innerHTML = '';
+      if (users.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5">Nema korisnika za prikaz.</td></tr>';
+        return;
+      }
+      users.forEach(user => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${user.korisnik_id}</td>
+          <td>${user.ime}</td>
+          <td>${user.broj_telefona || '-'}</td>
+          <td>${user.email}</td>
+          <td><button class="delete" data-id="${user.korisnik_id}">Obriši</button></td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      
+      tbody.querySelectorAll('button.delete').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const korisnikId = btn.getAttribute('data-id');
+          if (confirm('Da li ste sigurni da želite da obrišete korisnika?')) {
+            deleteUser(korisnikId);
+          }
+        });
+      });
+    }
+
+    async function deleteUser(korisnikId) {
+      try {
+        const res = await fetch(`/admin/users/${korisnikId}`, {
+          method: 'DELETE',
+          credentials: 'include'
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Greška pri brisanju korisnika');
+        showMessage(data.msg, false);
+        fetchUsers();
+      } catch (err) {
+        showMessage(err.message, true);
+      }
+    }
+
+    function showMessage(msg, isError) {
+      const messageDiv = document.getElementById('message');
+      messageDiv.textContent = msg;
+      messageDiv.style.color = isError ? 'red' : 'green';
+      setTimeout(() => {
+        messageDiv.textContent = '';
+      }, 5000);
+    }
+
+    
+    fetchUsers();
+  </script>
+  <script>
+    let allUsers = [];
+  
+    async function fetchUsers() {
+      try {
+        const res = await fetch('/admin/users', { credentials: 'include' });
+        if (!res.ok) throw new Error('Greška pri učitavanju korisnika');
+        const users = await res.json();
+        allUsers = users; 
+        renderUsers(allUsers);
+      } catch (err) {
+        showMessage(err.message, true);
+      }
+    }
+  
+    function filterUsers() {
+      const query = document.getElementById('search-bar').value.toLowerCase();
+      const filtered = allUsers.filter(user =>
+        user.ime.toLowerCase().includes(query) ||
+        (user.email && user.email.toLowerCase().includes(query)) ||
+        (user.broj_telefona && user.broj_telefona.toLowerCase().includes(query))
+      );
+      renderUsers(filtered);
+    }
+  </script>
+  {% include 'footer.html' %}
+</body>
+</html>

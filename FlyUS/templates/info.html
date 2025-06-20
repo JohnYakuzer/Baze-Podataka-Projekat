@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="sr">
+<head>
+    <meta charset="UTF-8" />
+    <title>O nama | FlyUS</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/info.css') }}">
+    <link rel="icon" href="{{ url_for('static', filename='images/favicon.png') }}" type="image/png" />
+</head>
+<body>
+    {% include 'navbar.html' %}
+
+    <main class="about-container">
+        <h1>O nama</h1>
+        <section class="about-section">
+            <div class="paragrafi">
+                <p>
+                    FlyUS je renomirana avio kompanija sa sedištem u Sijetlu, posvećena pružanju sigurnih, efikasnih i udobnih usluga vazdušnog saobraćaja. Koristimo najsavremenije tehnologije i stroge bezbednosne standarde kako bismo obezbedili vrhunsko iskustvo putovanja, a naš intuitivni online sistem za rezervacije i plaćanja omogućava korisnicima da lako planiraju svoje letove. Sa širokom mrežom međunarodnih partnera i modernom flotom aviona, konstantno radimo na unapređenju kvaliteta i pouzdanosti naših usluga.
+                </p>
+                <div class="mapa">
+                    <img src="../static/images/map_01.jpg">
+                </div>
+                <h2>Mejunarodni partneri i sponzorstvo</h2>
+                <p>
+                    FlyUS ponosno sarađuje sa brojnim međunarodnim partnerima, što nam omogućava da proširimo mrežu destinacija i unaprijedimo kvalitet naših usluga. Kao sponzori nekoliko renomiranih avio kompanija, FlyUS poseduje i upravlja određenim brojem aviona u njihovoj floti, čime dodatno doprinosimo sigurnosti i pouzdanosti njihovih letova. Ova strateška partnerstva omogućavaju nam da zajedno sa našim saradnicima ulažemo u inovacije, održivost i razvoj avio industrije, a putnicima pružamo bogatiju i kvalitetniju ponudu putovanja. 
+                </p>
+                <div class="slika_1">
+                    <img src="../static/images/flyus.png">
+                </div>
+            </div>
+        </section>
+    </main>
+
+    {% include 'footer.html' %}
+</body>
+</html>

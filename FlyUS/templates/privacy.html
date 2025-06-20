@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="crnogorski">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Politika privatnosti | FlyUS</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/privacy.css') }}">
+    <link rel="icon" href="{{ url_for('static', filename='images/favicon.png') }}" type="image/png" />
+</head>
+<body>
+    {% include 'navbar.html' %}
+    <div class="privacy-container">
+        <h1>Politika privatnosti</h1>
+
+        <p><strong>FlyUS</strong> poštuje vašu privatnost i posvećena je zaštiti ličnih podataka korisnika u skladu sa relevantnim zakonodavstvom i regulativama, uključujući:</p>
+
+        <ul>
+            <li>Opštu uredbu o zaštiti podataka Evropske unije (GDPR – EU 2016/679)</li>
+            <li>Zakon o privatnosti potrošača Kalifornije (CCPA – California Consumer Privacy Act)</li>
+            <li>Smernice Federalne trgovinske komisije SAD (FTC Privacy Guidelines)</li>
+            <li>Zakon o zaštiti ličnih informacija u Japanu (APPI – Act on the Protection of Personal Information)</li>
+            <li>Predlog zakona o zaštiti ličnih podataka u Indiji (PDPB – Personal Data Protection Bill)</li>
+        </ul>
+
+        <p>Obrada i čuvanje vaših podataka vrši se u skladu sa navedenim zakonima, uz primenu najviših standarda bezbednosti i transparentnosti.</p>
+
+        <p><strong>Registracija korisnika</strong> podrazumijeva pristanak na obradu ličnih podataka (ime, prezime, e-mail, lozinka) isključivo u svrhu korištenja usluga platforme. Takođe, prikupljamo podatke o platnoj kartici prilikom registracije kako bismo mogli osigurati validnost rezervacije i sprečiti kasna otkazivanja, čime štitimo i korisnike i naš sistem. Vaši podaci se neće dijeliti sa trećim stranama bez vašeg izričitog pristanka, osim u slučajevima zakonske obaveze.</p>
+
+
+        <p><strong>Administrator</strong> platforme ima pristup samo osnovnim informacijama o rezervacijama letova (datum, vrijeme, destinacija, broj sjedišta), isključivo u cilju održavanja funkcionalnosti sistema. Administrator može vršiti izmjene letova u slučaju kašnjenja, tehničkih problema ili promjena u rasporedu. U tim slučajevima, korisnik će biti <strong>obaviješten putem e-mail adrese</strong> koja je korištena prilikom registracije.</p>
+
+        <p>U slučaju <strong>otkazivanja leta od strane FlyUS-a</strong>, korisnik će automatski dobiti <strong>puni povrat sredstava</strong> na svoj račun u roku od 5 radnih dana. Povrat se vrši na isti način na koji je uplata izvršena.</p>
+
+        <p>Svi osjetljivi podaci, uključujući <strong>lozinke i podatke o plaćanju</strong>, kriptovani su pomoću industrijskih standarda i <strong>nisu dostupni ni administratoru</strong> sistema. U slučaju eventualnog <strong>data breach-a</strong>, zahvaljujući primijenjenim sigurnosnim mjerama, vaši podaci neće biti izloženi riziku od neovlaštenog pristupa.</p>
+
+        <p>Korišćenjem naših usluga, korisnici prihvataju uslove korišćenja i ovu Politiku privatnosti, čime potvrđuju saglasnost sa načinom obrade i zaštite podataka na platformi FlyUS.</p>
+    </div>
+    {% include 'footer.html' %}
+</body>
+</html>
